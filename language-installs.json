@@ -1,0 +1,71 @@
+{
+    "NodeJS": {
+        "Packages": [
+            "nodejs",
+            "npm"
+        ],
+        "Extensions": [
+            "eg2.vscode-npm-script",
+            "esbenp.prettier-vscode"
+        ]
+    },
+    "Python": {
+        "Extensions": [
+            "ms-python.python"
+        ]
+    },
+    "Typescript": {
+        "Inherit": "NodeJS",
+        "Extensions": [
+            "ms-vscode.typescript-javascript-grammar"
+        ]
+    },
+    "CSS": {
+        "Extensions": [
+            "pranaygp.vscode-css-peek"
+        ]
+    },
+    "Dockerfile": {
+        "Extensions": [
+            "peterjausovec.vscode-docker"
+        ]
+    },
+    "Vue": {
+        "Extensions": [
+            "octref.vetur"
+        ]
+    },
+    "HTML": {
+        "Extensions": [
+            "ritwickdey.liveserver"
+        ]
+    },
+    "Go": {
+        "Packages": [
+            "golang-go"
+        ],
+        "Extensions": [
+            "ms-vscode.go"
+        ]
+    },
+    "Markdown": {
+        "Extensions": [
+            "davidanson.vscode-markdownlint",
+            "yzhang.markdown-all-in-one"
+        ]
+    },
+    "Shell": {},
+    "C++": {
+        "Extensions": [
+            "ms-vscode.cpptools"
+        ]
+    },
+    "Java": {
+        "Packages": [
+            "default-jdk"
+        ],
+        "Extensions": [
+            "redhat.java"
+        ]
+    }
+}

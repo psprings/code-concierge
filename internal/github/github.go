@@ -11,8 +11,14 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// RepoURL : the GitHub repository URL taken from the environment variable `GITHUB_REPO_URL`
 var RepoURL = os.Getenv("GITHUB_REPO_URL")
+
+// APIToken : the GitHub personal access / API token taken from the environment variable `GITHUB_API_TOKEN`
 var APIToken = os.Getenv("GITHUB_API_TOKEN")
+
+// DefaultAPIURL : the public GitHub API URL to use
+var DefaultAPIURL = "https://api.github/com"
 
 func getAPIURLFromRepo(repoURL string) string {
 	parsedRepoURL, err := url.Parse(repoURL)
@@ -28,10 +34,14 @@ func getAPIURLFromRepo(repoURL string) string {
 	return parsedRepoURL.String()
 }
 
-func getAPIURL(repoURL string) string {
-	githubAPIURL := os.Getenv("GITHUB_API_URL")
-	if len(githubAPIURL) > 0 {
-		return githubAPIURL
+// GetAPIURL :
+func GetAPIURL(repoURL string) string {
+	githubEnvAPIURL := os.Getenv("GITHUB_API_URL")
+	if repoURL == "" && githubEnvAPIURL == "" {
+		return DefaultAPIURL
+	}
+	if len(githubEnvAPIURL) > 0 {
+		return githubEnvAPIURL
 	}
 	return getAPIURLFromRepo(repoURL)
 }
@@ -44,6 +54,14 @@ func ownerRepoFromURL(repoURL string) (string, string) {
 	repoPath := parsedRepoURL.Path
 	pathSplit := strings.Split(repoPath, "/")
 	return pathSplit[1], pathSplit[2]
+}
+
+func formatAPIBaseURL(apiURL string) string {
+	// The GitHub library being used requires the base url to end in a "/"
+	if strings.HasSuffix(apiURL, "/") {
+		return apiURL
+	}
+	return apiURL + "/"
 }
 
 // Config :
@@ -77,8 +95,9 @@ func (c *Config) ListLanguages(owner string, repo string) (map[string]int, error
 	} else {
 		client = github.NewClient(nil)
 	}
-	if c.APIBaseURL != "https://api.github.com" {
-		u, err := url.Parse(c.APIBaseURL)
+	if c.APIBaseURL != DefaultAPIURL {
+		formattedBaseURL := formatAPIBaseURL(c.APIBaseURL)
+		u, err := url.Parse(formattedBaseURL)
 		if err != nil {
 			log.Fatal(err)
 		}

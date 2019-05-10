@@ -33,6 +33,14 @@ func ensureRepoURL(repoURL string) string {
 	return github.RepoURL
 }
 
+func ensureGithubAPIURL(apiURL string, repoURL string) string {
+	if apiURL != github.DefaultAPIURL {
+		return apiURL
+	}
+	inferredAPIURL := github.GetAPIURL(repoURL)
+	return inferredAPIURL
+}
+
 func ensureAddExts(additionalExtensions string) string {
 	if additionalExtensions != "" {
 		return additionalExtensions
@@ -60,10 +68,12 @@ func Retrieve() *Config {
 	flag.StringVar(&addExts, "additional-extensions", "", "Comma separated list of extension IDs to install")
 	flag.Parse()
 	additionalExtensions := ensureAddExts(addExts)
+	eRepoURL := ensureRepoURL(repoURL)
+	eAPIBaseURL := ensureGithubAPIURL(apiURL, eRepoURL)
 	return &Config{
-		APIBaseURL:           apiURL,
+		APIBaseURL:           eAPIBaseURL,
 		Token:                ensureAPIToken(apiToken),
-		RepoURL:              ensureRepoURL(repoURL),
+		RepoURL:              eRepoURL,
 		AdditionalExtensions: commaSplit(additionalExtensions),
 	}
 }

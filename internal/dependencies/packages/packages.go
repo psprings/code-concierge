@@ -34,6 +34,7 @@ func useSudo(command []string, sudo bool) []string {
 
 // RunUpdate : package manager update
 func RunUpdate(operatingSystem string) error {
+	log.Print("Running package update...")
 	var command []string
 	switch operatingSystem {
 	case "ubuntu":
@@ -55,13 +56,14 @@ func Install(packageString string) error {
 	if isRisky(packageString) {
 		return errors.New("contains patterns that could pose a security risk")
 	}
+	log.Printf("Installing package %s", packageString)
 	// Parameterize this later
 	// currently needed to do installs via the `coder` user
 	sudo := EnableSudo
 	command := installCommandWrapper("", packageString)
 	command = useSudo(command, sudo)
 	binary, args := command[0], command[1:]
-	stdout, err := utils.ShellCommand(binary, args...)
+	stdout, err := utils.ShellCommandBufferedPrint(binary, args...)
 	log.Print(string(stdout))
 	return err
 }

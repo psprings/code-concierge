@@ -17,6 +17,7 @@ type Config struct {
 	RepoURL              string
 	DependenciesURL      string
 	AdditionalExtensions []string
+	AdditionalPackages   []string
 }
 
 func ensureAPIToken(token string) string {
@@ -48,6 +49,13 @@ func ensureAddExts(additionalExtensions string) string {
 	return os.Getenv("CODE_SERVER_INSTALL_EXTENSIONS")
 }
 
+func ensureAddPackage(additionalPackages string) string {
+	if additionalPackages != "" {
+		return additionalPackages
+	}
+	return os.Getenv("CODE_SERVER_INSTALL_PACKAGES")
+}
+
 func commaSplit(commaSeparated string) []string {
 	var separated []string
 	if commaSeparated == "" {
@@ -62,12 +70,15 @@ func Retrieve() *Config {
 	var apiToken string
 	var repoURL string
 	var addExts string
+	var addPackages string
 	flag.StringVar(&apiURL, "api-url", "https://api.github.com", "(optional) The base URL for the GitHub API")
 	flag.StringVar(&apiToken, "api-token", "", "The token to use for authentication to GitHub")
 	flag.StringVar(&repoURL, "repo-url", "", "The (https) URL of the GitHub repo to use")
 	flag.StringVar(&addExts, "additional-extensions", "", "Comma separated list of extension IDs to install")
+	flag.StringVar(&addPackages, "additional-packages", "", "Comma separated list of packages to install")
 	flag.Parse()
 	additionalExtensions := ensureAddExts(addExts)
+	additionalPackages := ensureAddExts(addPackages)
 	eRepoURL := ensureRepoURL(repoURL)
 	eAPIBaseURL := ensureGithubAPIURL(apiURL, eRepoURL)
 	return &Config{
@@ -75,5 +86,6 @@ func Retrieve() *Config {
 		Token:                ensureAPIToken(apiToken),
 		RepoURL:              eRepoURL,
 		AdditionalExtensions: commaSplit(additionalExtensions),
+		AdditionalPackages:   commaSplit(additionalPackages),
 	}
 }

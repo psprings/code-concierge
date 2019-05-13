@@ -8,6 +8,7 @@ import (
 
 	"github.com/psprings/code-concierge/internal/codeserver/extensions"
 	"github.com/psprings/code-concierge/internal/config"
+	"github.com/psprings/code-concierge/internal/dependencies/packages"
 	"github.com/psprings/code-concierge/internal/github"
 	"github.com/psprings/code-concierge/internal/utils"
 )
@@ -15,66 +16,82 @@ import (
 // DefaultDependenciesString : JSON representation of the default dependencies map
 var DefaultDependenciesString = `
 {
-	"NodeJS": {
-		"Extensions": [
-			"eg2.vscode-npm-script",
-			"esbenp.prettier-vscode"
-		]
-	},
-	"Typescript": {
-		"Inherit": "NodeJS",
-		"Extensions": [
-			"ms-vscode.typescript-javascript-grammar"
-		]
-	},
-	"CSS": {
-		"Extensions": [
-			"pranaygp.vscode-css-peek"
-		]
-	},
-	"Dockerfile": {
-		"Extensions": [
-			"peterjausovec.vscode-docker"
-		]
-	},
-	"Vue": {
-		"Extensions": [
-			"octref.vetur"
-		]
-	},
-	"HTML": {
-		"Extensions": [
-			"ritwickdey.liveserver"
-		]
-	},
-	"Go": {
-		"Extensions": [
-			"ms-vscode.go"
-		]
-	},
-	"Markdown": {
-		"Extensions": [
-			"davidanson.vscode-markdownlint",
-			"yzhang.markdown-all-in-one"
-		]
-	},
-	"Shell": {},
-	"C++": {
-		"Extensions": [
-			"ms-vscode.cpptools"
-		]
-	},
-	"Java": {
-		"Extensions": [
-			"redhat.java"
-		]
-	}
+    "NodeJS": {
+        "Packages": [
+            "nodejs",
+            "npm"
+        ],
+        "Extensions": [
+            "eg2.vscode-npm-script",
+            "esbenp.prettier-vscode"
+        ]
+    },
+    "Python": {
+        "Extensions": [
+            "ms-python.python"
+        ]
+    },
+    "Typescript": {
+        "Inherit": "NodeJS",
+        "Extensions": [
+            "ms-vscode.typescript-javascript-grammar"
+        ]
+    },
+    "CSS": {
+        "Extensions": [
+            "pranaygp.vscode-css-peek"
+        ]
+    },
+    "Dockerfile": {
+        "Extensions": [
+            "peterjausovec.vscode-docker"
+        ]
+    },
+    "Vue": {
+        "Extensions": [
+            "octref.vetur"
+        ]
+    },
+    "HTML": {
+        "Extensions": [
+            "ritwickdey.liveserver"
+        ]
+    },
+    "Go": {
+        "Packages": [
+            "golang-go"
+        ],
+        "Extensions": [
+            "ms-vscode.go"
+        ]
+    },
+    "Markdown": {
+        "Extensions": [
+            "davidanson.vscode-markdownlint",
+            "yzhang.markdown-all-in-one"
+        ]
+    },
+    "Shell": {},
+    "C++": {
+        "Extensions": [
+            "ms-vscode.cpptools"
+        ]
+    },
+    "Java": {
+        "Packages": [
+            "default-jdk"
+        ],
+        "Extensions": [
+            "redhat.java"
+        ]
+    }
 }
 `
 
 // Dependencies :
 type Dependencies struct {
 	Extensions []string
+	Packages   []string
 }
 
 // ParseLanguagesDependencies : given a JSON string, return a map of languages
@@ -129,6 +146,20 @@ func installExtensions(extensionIDs []string) {
 	}
 }
 
+func installPackages(packageList []string) {
+	if len(packageList) < 1 {
+		return
+	}
+	packageList = utils.UniqueStrings(packageList)
+	packages.RunUpdate("")
+	for _, packageName := range packageList {
+		err := packages.Install(packageName)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
 // Install :
 func Install() {
 	c := config.Retrieve()
@@ -144,6 +175,7 @@ func Install() {
 	langDepMap, err := GetLanguagesDependencies(c.DependenciesURL)
 
 	var allExtensions []string
+	var allPackages []string
 
 	// Iterate through all languages discovered in GitHub
 	for language := range languages {
@@ -156,11 +188,19 @@ func Install() {
 		for _, extensionID := range currentDeps.Extensions {
 			allExtensions = append(allExtensions, extensionID)
 		}
+		// Populate package install list
+		for _, packageName := range currentDeps.Packages {
+			allPackages = append(allPackages, packageName)
+		}
 	}
 	// Merge automatic and user provided extension lists
 	allExtensions = append(allExtensions, c.AdditionalExtensions...)
 	// De-duplicate and install extensions
 	installExtensions(allExtensions)
+	// Merge automatic and user provided packages
+	allPackages = append(allPackages, c.AdditionalPackages...)
+	// De-duplicate and install packages
+	installPackages(allPackages)
 
 	// Clone repo from GitHub
 	utils.GitClone(c.RepoURL, c.Token)

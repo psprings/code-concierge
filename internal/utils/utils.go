@@ -2,6 +2,7 @@ package utils
 
 import (
 	"archive/zip"
+	"bufio"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -110,18 +111,42 @@ func UnzipFile(filename string, destination string) ([]string, error) {
 	return filenames, nil
 }
 
+// ShellCommand : execute shell commands
 // Mostly just using for tests at the moment
 // example usage:
 // shellCommand("ls", "-la")
-// ShellCommand : execute shell commands
-func ShellCommand(binary string, args ...string) {
+func ShellCommand(binary string, args ...string) ([]byte, error) {
+	return shellCommand(false, binary, args...)
+}
+
+// ShellCommandBufferedPrint : print stdout as the command is running instead of waiting for it to run
+func ShellCommandBufferedPrint(binary string, args ...string) ([]byte, error) {
+	return shellCommand(true, binary, args...)
+}
+
+// func ShellCommand(binary string, args ...string) ([]byte, error) {
+// 	cmd := exec.Command(binary, args...)
+// 	cmd.Stderr
+// 	stdout, err := cmd.Output()
+// 	return stdout, err
+// }
+
+func shellCommand(bufferedLog bool, binary string, args ...string) ([]byte, error) {
 	cmd := exec.Command(binary, args...)
-	stdout, err := cmd.Output()
-	if err != nil {
-		println(err.Error())
-		return
+	stdoutReader, err := cmd.StdoutPipe()
+	cmd.Start()
+	if bufferedLog {
+		scanner := bufio.NewScanner(stdoutReader)
+		// scanner.Split(bufio.ScanWords)
+		scanner.Split(bufio.ScanLines)
+		for scanner.Scan() {
+			m := scanner.Text()
+			fmt.Println(m)
+		}
 	}
-	fmt.Println(string(stdout))
+	cmd.Wait()
+	stdout, _ := ioutil.ReadAll(stdoutReader)
+	return stdout, err
 }
 
 // GitConfigureAuth : inject API token into GitHub https calls
@@ -139,6 +164,14 @@ func GitConfigureAuth(repoURL string, apiToken string) {
 	ShellCommand("git", "config", "--global", substituteValue, forValue)
 }
 
+func shellCommandPrint(binary string, args ...string) {
+	stdout, err := ShellCommand(binary, args...)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(string(stdout))
+}
+
 // GitClone : execute `git clone`
 func GitClone(repoURL string, apiToken string) {
 	if apiToken != "" {
@@ -148,9 +181,9 @@ func GitClone(repoURL string, apiToken string) {
 	if useBranch == "" {
 		useBranch = "master"
 	}
-	ShellCommand("git", "init", ".")
-	ShellCommand("git", "remote", "add", "origin", repoURL)
-	ShellCommand("git", "pull", "origin", useBranch)
+	shellCommandPrint("git", "init", ".")
+	shellCommandPrint("git", "remote", "add", "origin", repoURL)
+	shellCommandPrint("git", "pull", "origin", useBranch)
 }
 
 // UniqueStrings :

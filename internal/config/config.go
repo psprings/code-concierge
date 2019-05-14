@@ -18,6 +18,7 @@ type Config struct {
 	DependenciesURL      string
 	AdditionalExtensions []string
 	AdditionalPackages   []string
+	InstallDockerCLI     bool
 }
 
 func ensureAPIToken(token string) string {
@@ -71,11 +72,13 @@ func Retrieve() *Config {
 	var repoURL string
 	var addExts string
 	var addPackages string
+	var installDockerCLI bool
 	flag.StringVar(&apiURL, "api-url", "https://api.github.com", "(optional) The base URL for the GitHub API")
 	flag.StringVar(&apiToken, "api-token", "", "The token to use for authentication to GitHub")
 	flag.StringVar(&repoURL, "repo-url", "", "The (https) URL of the GitHub repo to use")
 	flag.StringVar(&addExts, "additional-extensions", "", "Comma separated list of extension IDs to install")
 	flag.StringVar(&addPackages, "additional-packages", "", "Comma separated list of packages to install")
+	flag.BoolVar(&installDockerCLI, "install-docker", false, "Whether to install the Docker CLI")
 	flag.Parse()
 	additionalExtensions := ensureAddExts(addExts)
 	additionalPackages := ensureAddExts(addPackages)
@@ -87,5 +90,6 @@ func Retrieve() *Config {
 		RepoURL:              eRepoURL,
 		AdditionalExtensions: commaSplit(additionalExtensions),
 		AdditionalPackages:   commaSplit(additionalPackages),
+		InstallDockerCLI:     installDockerCLI,
 	}
 }

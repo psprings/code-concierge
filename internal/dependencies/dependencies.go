@@ -43,6 +43,9 @@ var DefaultDependenciesString = `
         ]
     },
     "Dockerfile": {
+		"Packages": [
+            "docker-ce-cli"
+        ],
         "Extensions": [
             "peterjausovec.vscode-docker"
         ]
@@ -59,7 +62,7 @@ var DefaultDependenciesString = `
     },
     "Go": {
         "Packages": [
-            "golang-go"
+            "golang-1.12-go"
         ],
         "Extensions": [
             "ms-vscode.go"
@@ -201,6 +204,10 @@ func Install() {
 	allPackages = append(allPackages, c.AdditionalPackages...)
 	// De-duplicate and install packages
 	installPackages(allPackages)
+	// Install Docker CLI
+	if c.InstallDockerCLI {
+		packages.InstallDockerCLI()
+	}
 
 	// Clone repo from GitHub
 	utils.GitClone(c.RepoURL, c.Token)

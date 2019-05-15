@@ -1,6 +1,11 @@
 package packages
 
-import "github.com/psprings/code-concierge/internal/utils"
+import (
+	"fmt"
+	"os"
+
+	"github.com/psprings/code-concierge/internal/utils"
+)
 
 // sudo apt-get install \
 //     apt-transport-https \
@@ -9,7 +14,7 @@ import "github.com/psprings/code-concierge/internal/utils"
 //     gnupg-agent \
 //     software-properties-common
 
-func installDockerPreReqs() ([]byte, error) {
+func installDockerPackagePreReqs() ([]byte, error) {
 	sudo := true
 	preReqInstallCmd := []string{"apt-get", "install", "-y",
 		"apt-transport-https",
@@ -43,11 +48,67 @@ func addDockerGPGKey() ([]byte, error) {
 	return stdout, err
 }
 
-// InstallDockerCLI :
-func InstallDockerCLI() {
-	installDockerPreReqs()
-	addDockerGPGKey()
-	addDockerRepository()
-	RunUpdate("")
-	Install("docker-ce-cli")
+func installDockerPreReqs() error {
+	_, err := installDockerPackagePreReqs()
+	if err != nil {
+		return err
+	}
+	_, err = addDockerGPGKey()
+	if err != nil {
+		return err
+	}
+	_, err = addDockerRepository()
+	if err != nil {
+		return err
+	}
+	err = RunUpdate("")
+	return err
+}
+
+// InstallDockerComposeCLI : install the docker-compose CLI
+func InstallDockerComposeCLI(version string) error {
+	if version == "" {
+		version = "latest"
+	}
+	kernelName, err := utils.GetKernelName()
+	if err != nil {
+		return err
+	}
+	kernelVersion, err := utils.GetKernelVersion()
+	if err != nil {
+		return err
+	}
+	downloadFilename := "/usr/local/bin/docker-compose"
+	downloadURL := fmt.Sprintf("https://github.com/docker/compose/releases/download/%s/docker-compose-%s-%s", version, kernelName, kernelVersion)
+	_, err = utils.DownloadFile(downloadFilename, downloadURL)
+	if err != nil {
+		return err
+	}
+	err = os.Chmod(downloadFilename, 0766)
+	return err
+}
+
+// InstallDockerCLI : install the Docker CLI (not the daemon)
+func InstallDockerCLI() error {
+	err := installDockerPreReqs()
+	if err != nil {
+		return err
+	}
+	return Install("docker-ce-cli")
+}
+
+// InstallDocker : install Docker (with CLI and daemon)
+func InstallDocker() error {
+	err := installDockerPreReqs()
+	if err != nil {
+		return err
+	}
+	packagesToInstall := []string{"docker-ce", "docker-ce-cli", "containerd.io"}
+	for _, packageName := range packagesToInstall {
+		err = Install(packageName)
+		if err != nil {
+			return err
+		}
+	}
+	return err
 }

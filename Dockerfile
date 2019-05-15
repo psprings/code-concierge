@@ -15,7 +15,8 @@ USER root
 
 COPY docker-entrypoint.sh /home/coder/docker-entrypoint.sh
 
-RUN echo 'coder ALL= NOPASSWD: /usr/bin/apt-get' >> /etc/sudoers && \
+RUN chown coder:coder /usr/local/bin && \
+    echo 'coder ALL= NOPASSWD: /usr/bin/apt-get' >> /etc/sudoers && \
     chmod +x /home/coder/docker-entrypoint.sh
 
 USER coder

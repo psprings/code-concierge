@@ -73,7 +73,7 @@ func Retrieve() *Config {
 	var addExts string
 	var addPackages string
 	var installDockerCLI bool
-	flag.StringVar(&apiURL, "api-url", "https://api.github.com", "(optional) The base URL for the GitHub API")
+	flag.StringVar(&apiURL, "api-url", "", "(optional) The base URL for the GitHub API")
 	flag.StringVar(&apiToken, "api-token", "", "The token to use for authentication to GitHub")
 	flag.StringVar(&repoURL, "repo-url", "", "The (https) URL of the GitHub repo to use")
 	flag.StringVar(&addExts, "additional-extensions", "", "Comma separated list of extension IDs to install")

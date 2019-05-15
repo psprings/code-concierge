@@ -18,7 +18,7 @@ var RepoURL = os.Getenv("GITHUB_REPO_URL")
 var APIToken = os.Getenv("GITHUB_API_TOKEN")
 
 // DefaultAPIURL : the public GitHub API URL to use
-var DefaultAPIURL = "https://api.github/com"
+var DefaultAPIURL = "https://api.github.com"
 
 func getAPIURLFromRepo(repoURL string) string {
 	parsedRepoURL, err := url.Parse(repoURL)

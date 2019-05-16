@@ -158,7 +158,7 @@ func GitConfigureAuth(repoURL string, apiToken string) {
 	parsedURL.Path = ""
 
 	println(parsedURL)
-	substituteValue := fmt.Sprintf("url.%s://\"${GITHUB_TOKEN}:x-oauth-basic@%s/\".insteadOf", parsedURL.Scheme, parsedURL.Host)
+	substituteValue := fmt.Sprintf("url.%s://\"${GITHUB_API_TOKEN}:x-oauth-basic@%s/\".insteadOf", parsedURL.Scheme, parsedURL.Host)
 	forValue := fmt.Sprintf("%s://%s/", parsedURL.Scheme, parsedURL.Host)
 	os.Setenv("GITHUB_API_TOKEN", apiToken)
 	ShellCommand("git", "config", "--global", substituteValue, forValue)

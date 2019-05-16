@@ -206,7 +206,7 @@ func Install() {
 	installPackages(allPackages)
 	// Install Docker CLI
 	if c.InstallDockerCLI {
-		err:= packages.InstallDockerCLI()
+		err := packages.InstallDockerCLI()
                 if err != nil {
                     log.Printf("Docker install error: %#v", err)
                 }

@@ -36,7 +36,7 @@ func ensureRepoURL(repoURL string) string {
 }
 
 func ensureGithubAPIURL(apiURL string, repoURL string) string {
-	if apiURL != github.DefaultAPIURL {
+	if apiURL != "" {
 		return apiURL
 	}
 	inferredAPIURL := github.GetAPIURL(repoURL)

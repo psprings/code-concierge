@@ -52,6 +52,8 @@ Usage of code-concierge:
         Whether to install the Docker CLI
   -repo-url string
         The (https) URL of the GitHub repo to use
+  -skip-auto-installs
+        Whether to skip automatic install of extensions and packages
 ```
 
 ## TODO

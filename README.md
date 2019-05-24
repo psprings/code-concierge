@@ -35,7 +35,6 @@ The following environment variables can be set to modify the arguments for `code
 | `CODE_CONCIERGE_ARGS`              | Can be used to pass arguments to `code-concierge`                    |                  |
 | `GITHUB_REPO_URL`                  | The GitHub repository URL to clone code from and setup               |                  |
 | `INSTALL_DOCKER_CLI`               | Determines whether the Docker CLI is installed (will auto-install if repo uses Docker) | `false`          |
-| `GRAFEAS_STORAGE_TYPE`             | Supported options are `memstore` and `postgres`                      | `memstore`       |
 
 ### CLI Options
 

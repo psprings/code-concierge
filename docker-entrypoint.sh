@@ -5,7 +5,7 @@ if [ -z "${GITHUB_REPO_URL}" ]; then
     exit 1
 fi
 
-code_concierge_args=""
+code_concierge_args="${CODE_CONCIERGE_ARGS}"
 
 if [ "${INSTALL_DOCKER_CLI}" = "true" ]; then
     code_concierge_args="${code_concierge_args} --install-docker"

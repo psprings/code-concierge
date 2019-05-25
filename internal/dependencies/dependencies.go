@@ -43,6 +43,9 @@ var DefaultDependenciesString = `
         ]
     },
     "Dockerfile": {
+		"Packages": [
+            "docker-ce-cli"
+        ],
         "Extensions": [
             "peterjausovec.vscode-docker"
         ]
@@ -59,7 +62,7 @@ var DefaultDependenciesString = `
     },
     "Go": {
         "Packages": [
-            "golang-go"
+            "golang-1.12-go"
         ],
         "Extensions": [
             "ms-vscode.go"
@@ -177,22 +180,25 @@ func Install() {
 	var allExtensions []string
 	var allPackages []string
 
-	// Iterate through all languages discovered in GitHub
-	for language := range languages {
-		log.Printf("Language: %s", language)
-		currentDeps := langDepMap[language]
-		if _, ok := langDepMap[language]; !ok {
-			continue
-		}
-		// Populate extension ID list
-		for _, extensionID := range currentDeps.Extensions {
-			allExtensions = append(allExtensions, extensionID)
-		}
-		// Populate package install list
-		for _, packageName := range currentDeps.Packages {
-			allPackages = append(allPackages, packageName)
+	if !c.SkipAutoInstalls {
+		// Iterate through all languages discovered in GitHub
+		for language := range languages {
+			log.Printf("Language: %s", language)
+			currentDeps := langDepMap[language]
+			if _, ok := langDepMap[language]; !ok {
+				continue
+			}
+			// Populate extension ID list
+			for _, extensionID := range currentDeps.Extensions {
+				allExtensions = append(allExtensions, extensionID)
+			}
+			// Populate package install list
+			for _, packageName := range currentDeps.Packages {
+				allPackages = append(allPackages, packageName)
+			}
 		}
 	}
+
 	// Merge automatic and user provided extension lists
 	allExtensions = append(allExtensions, c.AdditionalExtensions...)
 	// De-duplicate and install extensions
@@ -201,6 +207,13 @@ func Install() {
 	allPackages = append(allPackages, c.AdditionalPackages...)
 	// De-duplicate and install packages
 	installPackages(allPackages)
+	// Install Docker CLI
+	if c.InstallDockerCLI {
+		err := packages.InstallDockerCLI()
+		if err != nil {
+			log.Printf("Docker install error: %#v", err)
+		}
+	}
 
 	// Clone repo from GitHub
 	utils.GitClone(c.RepoURL, c.Token)

@@ -37,11 +37,11 @@ func getAPIURLFromRepo(repoURL string) string {
 // GetAPIURL :
 func GetAPIURL(repoURL string) string {
 	githubEnvAPIURL := os.Getenv("GITHUB_API_URL")
-	if repoURL == "" && githubEnvAPIURL == "" {
-		return DefaultAPIURL
-	}
 	if len(githubEnvAPIURL) > 0 {
 		return githubEnvAPIURL
+	}
+	if repoURL == "" {
+		return DefaultAPIURL
 	}
 	return getAPIURLFromRepo(repoURL)
 }

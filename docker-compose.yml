@@ -1,0 +1,13 @@
+version: '3'
+services:
+  code-concierge:
+    image: psprings/code-concierge
+    ports:
+     - "80:8443"
+    environment:
+      GITHUB_REPO_URL: https://github.com/psprings/code-concierge
+      DOCKER_HOST: tcp://docker:2375
+    command: --allow-http
+  docker:
+    image: "docker:stable-dind"
+    privileged: true

@@ -26,6 +26,9 @@
         ]
     },
     "Dockerfile": {
+        "Packages": [
+            "docker-ce-cli"
+        ],
         "Extensions": [
             "peterjausovec.vscode-docker"
         ]
@@ -42,7 +45,7 @@
     },
     "Go": {
         "Packages": [
-            "golang-go"
+            "golang-1.12-go"
         ],
         "Extensions": [
             "ms-vscode.go"

@@ -15,12 +15,12 @@ import (
 	"strings"
 )
 
-// DownloadFile :
+// DownloadFile : download the contents from a URL to a specified filename
 func DownloadFile(filename string, urlString string) (string, error) {
 	return downloadFile(filename, urlString)
 }
 
-// DownloadTmpFile :
+// DownloadTmpFile : download the contents from a given URL to a temporary file
 func DownloadTmpFile(urlString string) (string, error) {
 	return downloadFile("", urlString)
 }
@@ -56,7 +56,7 @@ func downloadFile(filename string, urlString string) (string, error) {
 	return file.Name(), err
 }
 
-// UnzipFile :
+// UnzipFile : given a .zip file name, unzip to a destination folder
 func UnzipFile(filename string, destination string) ([]string, error) {
 
 	var filenames []string
@@ -158,7 +158,7 @@ func GitConfigureAuth(repoURL string, apiToken string) {
 	parsedURL.Path = ""
 
 	println(parsedURL)
-	substituteValue := fmt.Sprintf("url.%s://\"${GITHUB_TOKEN}:x-oauth-basic@%s/\".insteadOf", parsedURL.Scheme, parsedURL.Host)
+	substituteValue := fmt.Sprintf("url.%s://\"${GITHUB_API_TOKEN}:x-oauth-basic@%s/\".insteadOf", parsedURL.Scheme, parsedURL.Host)
 	forValue := fmt.Sprintf("%s://%s/", parsedURL.Scheme, parsedURL.Host)
 	os.Setenv("GITHUB_API_TOKEN", apiToken)
 	ShellCommand("git", "config", "--global", substituteValue, forValue)
@@ -181,12 +181,12 @@ func GitClone(repoURL string, apiToken string) {
 	if useBranch == "" {
 		useBranch = "master"
 	}
-	shellCommandPrint("git", "init", ".")
-	shellCommandPrint("git", "remote", "add", "origin", repoURL)
-	shellCommandPrint("git", "pull", "origin", useBranch)
+	ShellCommandBufferedPrint("git", "init", ".")
+	ShellCommandBufferedPrint("git", "remote", "add", "origin", repoURL)
+	ShellCommandBufferedPrint("git", "pull", "origin", useBranch)
 }
 
-// UniqueStrings :
+// UniqueStrings : deduplicate items in a string slice
 func UniqueStrings(stringSlice []string) []string {
 	keys := make(map[string]bool)
 	list := []string{}
@@ -197,4 +197,16 @@ func UniqueStrings(stringSlice []string) []string {
 		}
 	}
 	return list
+}
+
+// GetKernelName : returns the kernel name
+func GetKernelName() (string, error) {
+	stdout, error := ShellCommand("uname", "-s")
+	return string(stdout), error
+}
+
+// GetKernelVersion : returns the kernel version
+func GetKernelVersion() (string, error) {
+	stdout, error := ShellCommand("uname", "-r")
+	return string(stdout), error
 }
